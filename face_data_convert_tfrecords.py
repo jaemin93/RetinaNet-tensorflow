@@ -9,9 +9,9 @@ import numpy as np
 from PIL import Image
 from object_detection.utils import dataset_util
 
-IMG_ROOT_DIR = 'RetinaNet-tensorflow\\data\\face\\originalPics'
-LABEL_ROOT_DIR = 'RetinaNet-tensorflow\\data\\face\\FDDB-folds'
-TFRECORD_ROOT_DIR = 'RetinaNet-tensorflow\\data\\face\\tmp2'
+IMG_ROOT_DIR = 'C:\\Users\\iceba\\develop\\data\\retina_face\\face\\originalPics'
+LABEL_ROOT_DIR = 'C:\\Users\\iceba\\develop\\data\\retina_face\\face\\FDDB-folds'
+TFRECORD_ROOT_DIR = 'C:\\Users\\iceba\\develop\\data\\retina_face\\face\\tfrecords'
 
 def _main():
     print('Make datasets list....')
@@ -77,7 +77,6 @@ def read_imagebytes(imagefile):
 def make_label_list(path, img_list):
     info = dict()
     for label_file_name in os.listdir(path):
-        info_key = label_file_name+'.jpg'
         label_dir = path + os.sep + label_file_name
         with open(label_dir, 'r', encoding='utf-8') as f_l:
             while True:
@@ -88,7 +87,7 @@ def make_label_list(path, img_list):
                 if not img_name:
                     break
                 num_anchors = int(f_l.readline())
-                for i in range(num_anchors):
+                for _ in range(num_anchors):
                     coordinate.append(f_l.readline().split())
                 info[original_img_name] = coordinate
 
@@ -106,7 +105,7 @@ def make_file_list(path):
                 for classifier in os.listdir(DAY_ROOT_DIR):
                     CLASSIFIER_ROOT_DIR = DAY_ROOT_DIR + \
                         os.sep + str(classifier)
-                    for file_idx, file_name in enumerate(os.listdir(CLASSIFIER_ROOT_DIR)):
+                    for _, file_name in enumerate(os.listdir(CLASSIFIER_ROOT_DIR)):
                         src = str(year) + '_' + str(month) + '_' + str(day) + '_' + str(classifier) \
                             + '_' + str(file_name)
                         file_list.append(src[:-4])

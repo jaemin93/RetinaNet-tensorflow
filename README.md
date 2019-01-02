@@ -14,7 +14,7 @@ toy dataset: [FDDB: Face Detection Data Set and Benchmark(FDDB)](http://vis-www.
 
 ellipsis_to_rectangle.py script helps to make annotations file for detection
 
-# GOAL
+## GOAL
 Convert image(.jpg), label(.anno) data to tfrecords format and read tfrecords
 
 STEP
