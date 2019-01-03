@@ -4,14 +4,16 @@ Code by jaemin93 (https://github.com/jaemin93)
 '''
 
 import os
+import cv2
+import io
 import tensorflow as tf
 import numpy as np
-from PIL import Image
+import PIL.Image as pil
 from object_detection.utils import dataset_util
 
 IMG_ROOT_DIR = 'C:\\Users\\iceba\\develop\\data\\retina_face\\face\\originalPics'
 LABEL_ROOT_DIR = 'C:\\Users\\iceba\\develop\\data\\retina_face\\face\\FDDB-folds'
-TFRECORD_ROOT_DIR = 'C:\\Users\\iceba\\develop\\data\\retina_face\\face\\tfrecords'
+TFRECORD_ROOT_DIR = 'C:\\Users\\iceba\\develop\\data\\retina_face\\face\\face_tfrecords'
 
 def _main():
     print('Make datasets list....')
@@ -40,6 +42,12 @@ def create_tfrecord(file_name, features):
     img_path = IMG_ROOT_DIR + os.sep + os.sep.join(file_name.split('/'))
 
     img = read_imagebytes(img_path)
+    encoded_png_io = io.BytesIO(img)
+    image = pil.open(encoded_png_io)
+    image = np.asarray(image)
+    width = int(image.shape[1])
+    height = int(image.shape[0])
+
     label_text = b'face'
     x1_list = list()
     x2_list = list() 
@@ -60,6 +68,8 @@ def create_tfrecord(file_name, features):
 
     tf_example = tf.train.Example(features=tf.train.Features(feature={
         'img': dataset_util.bytes_feature(img),
+        'height': dataset_util.int64_feature(height),
+        'width': dataset_util.int64_feature(width),
         'x1': dataset_util.float_list_feature(x1_list),
         'x2': dataset_util.float_list_feature(x2_list),
         'y1': dataset_util.float_list_feature(y1_list),

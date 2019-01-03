@@ -1,8 +1,9 @@
 import os
 import numpy as np
-from cv2 import imread, resize
+from cv2 import imread, resizes
 import glob
 import json
+import face_read_tfrecord as frt
 from datasets.utils import anchor_targets_bbox, bbox_transform, padding, anchors_for_shape
 
 IM_EXTENSIONS = ['png', 'jpg', 'bmp']
@@ -17,6 +18,10 @@ def read_data(data_dir, image_size, no_label=False):
     :return: X_set: np.ndarray, shape: (N, H, W, C).
              y_set: np.ndarray, shape: (N, N_box, 5+num_classes).
     """
+    #jaemin`s code
+
+    TFRECORD_ROOT_DIR = 'C:\\Users\\iceba\\develop\\data\\retina_face\\face\\face_tfrecords'
+
     im_dir = os.path.join(data_dir, 'images')
     class_map_path = os.path.join(data_dir, 'classes.json')
     class_map = load_json(class_map_path)
@@ -30,40 +35,58 @@ def read_data(data_dir, image_size, no_label=False):
     images = []
     labels = []
 
-    for im_path in im_paths:
-        # load image and resize image
-        im = imread(im_path)
-        im = np.array(im, dtype=np.float32)
-        im_original_sizes = im.shape[:2]
-        im = resize(im, (image_size[1], image_size[0]))
-        if len(im.shape) == 2:
-            im = np.expand_dims(im, 2)
-            im = np.concatenate([im, im, im], -1)
-        images.append(im)
+    for im_path in os.listdir(TFRECORD_ROOT_DIR):
+        # jaemin`s code
+        TFRECORD_FILE = TFRECORD_ROOT_DIR + os.sep + im_path
+        filename_queue = tf.train.string_input_producer([TFRECORD_FILE])
+        encoded, h, w, x1, x2, y1, y2, label = read_tfrecord(filename_queue)
 
-        if no_label:
-            labels.append(0)
-            continue
-        # load bboxes and reshape for retina model
-        name = os.path.splitext(os.path.basename(im_path))[0]
-        anno_path = os.path.join(anno_dir, '{}.anno'.format(name))
-        anno = load_json(anno_path)
-        bboxes = []
+        init_op = tf.global_variables_initializer()
+        with tf.Session() as sess:
+            sess.run(init_op)
 
-        for c_idx, c_name in class_map.items():
-            if c_name not in anno:
+            coord = tf.train.Coordinator()
+            threads = tf.train.start_queue_runners(coord=coord)
+            
+            vencoded, vh, vw, vx1, vx2, vy1, vy2, vlabel = sess.run([encoded, h, w, x1, x2, y1, y2, label])
+            encoded_png_io = io.BytesIO(vencoded)
+            image = pil.open(encoded_png_io)
+            image = np.array(image, dtype=np.float32)
+            coord.request_stop()
+            coord.join(threads)
+
+
+            # load image and resize image
+            im_original_sizes = im.shape[:2]
+            im = resize(im, (image_size[1], image_size[0]))
+            if len(im.shape) == 2:
+                im = np.expand_dims(im, 2)
+                im = np.concatenate([im, im, im], -1)
+            images.append(im)
+
+            if no_label:
+                labels.append(0)
                 continue
-            for x_min, y_min, x_max, y_max in anno[c_name]:
-                oh, ow = im_original_sizes
-                x_min, y_min, x_max, y_max = x_min / ow, y_min / oh, x_max/ ow, y_max / oh
-                bboxes.append([x_min, y_min, x_max, y_max, int(c_idx)+1])
-            bboxes = np.array(bboxes)
-            bboxes = np.array([iw, ih, iw, ih, 1], dtype=np.float32) * bboxes
+            # load bboxes and reshape for retina model
+            name = os.path.splitext(os.path.basename(im_path))[0]
+            anno_path = os.path.join(anno_dir, '{}.anno'.format(name))
+            anno = load_json(anno_path)
+            bboxes = []
 
-            b_labels, annotations = anchor_targets_bbox(im.shape, bboxes, num_classes + 1, anchors)
-            regression = bbox_transform(anchors, annotations)
-            label = np.array(np.append(regression, b_labels, axis=1), dtype=np.float32)
-        labels.append(label)
+            for c_idx, c_name in class_map.items():
+                if c_name not in anno:
+                    continue
+                for x_min, y_min, x_max, y_max in anno[c_name]:
+                    oh, ow = im_original_sizes
+                    x_min, y_min, x_max, y_max = x_min / ow, y_min / oh, x_max/ ow, y_max / oh
+                    bboxes.append([x_min, y_min, x_max, y_max, int(c_idx)+1])
+                bboxes = np.array(bboxes)
+                bboxes = np.array([iw, ih, iw, ih, 1], dtype=np.float32) * bboxes
+
+                b_labels, annotations = anchor_targets_bbox(im.shape, bboxes, num_classes + 1, anchors)
+                regression = bbox_transform(anchors, annotations)
+                label = np.array(np.append(regression, b_labels, axis=1), dtype=np.float32)
+            labels.append(label)
 
     X_set = np.array(images, dtype=np.float32)
     y_set = np.array(labels, dtype=np.float32)

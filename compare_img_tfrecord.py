@@ -13,14 +13,16 @@ import numpy as np
 from cv2 import imread, resize
 import glob
 import json
+import matplotlib.pyplot as plt
 from datasets.utils import anchor_targets_bbox, bbox_transform, padding, anchors_for_shape
 import PIL.Image as pil
 from object_detection.utils import dataset_util
 
-TFRECORD_ROOT_DIR = 'C:\\Users\\iceba\\develop\\data\\retina_face\\face\\face_tfrecords'
+TFRECORD_FILE = '2002_07_19_big_img_90.tfrecord'
+IMAGE_FILE = 'img_18.jpg'
 
 def _main():
-    filename_queue = tf.train.string_input_producer([TFRECORD_ROOT_DIR])
+    filename_queue = tf.train.string_input_producer([TFRECORD_FILE])
     encoded, x1, x2, y1, y2, label = read_tfrecord(filename_queue)
 
     init_op = tf.global_variables_initializer()
@@ -36,14 +38,22 @@ def _main():
         image = np.asarray(image)
         coord.request_stop()
         coord.join(threads)
+        
+    # im = imread(im_path)
+    # im = np.array(im, dtype=np.float32)
+
+    # image = Image.open(io.BytesIO(vencoded))
+    # image.show()
+    #images.append(im)
+    #print(images)
+
+        
 
 def read_tfrecord(filename_queue):
     reader = tf.TFRecordReader()
     _, serialized_example = reader.read(filename_queue)
     keys_to_features = {
         'img': tf.FixedLenFeature((), tf.string, default_value=''),
-        'height': tf.VarLenFeature(tf.float32),
-        'width': tf.VarLenFeature(tf.float32),
         'x1': tf.VarLenFeature(tf.float32),
         'x2': tf.VarLenFeature(tf.float32),
         'y1': tf.VarLenFeature(tf.float32),
@@ -54,15 +64,13 @@ def read_tfrecord(filename_queue):
     features = tf.parse_single_example(serialized_example,features= keys_to_features)
     
     encoded = tf.cast(features['img'],tf.string)
-    h = tf.cast(features['height'],tf.float32)
-    w = tf.cast(features['width'],tf.float32)
     x1 = tf.cast(features['x1'],tf.float32)
     x2 = tf.cast(features['x2'],tf.float32)
     y1 = tf.cast(features['y1'],tf.float32)
     y2 = tf.cast(features['y2'],tf.float32)
     label = tf.cast(features['label'],tf.string)
     
-    return encoded, h, w, x1, x2, y1, y2, label
+    return encoded, x1, x2, y1, y2, label
 
 
 if __name__ == '__main__':
