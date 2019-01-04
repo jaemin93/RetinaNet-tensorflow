@@ -142,7 +142,7 @@ def read_data(trainval_dir, image_size, no_label=False):
 
     X_set = np.array(images, dtype=np.float32)
     y_set = np.array(labels, dtype=np.float32)
-
+    
     return X_set, y_set
 
 def load_json(json_path):
