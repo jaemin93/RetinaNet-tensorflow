@@ -1,0 +1,10 @@
+{
+    "python.linting.pylintArgs": [
+        "--rcfile",
+        "pylint.config",
+        "--disable",
+        "missing-docstring"
+    ],
+    "python.pythonPath": "/home/mds/.conda/envs/tfenv3.6/bin/python",
+    "python.linting.pylintEnabled": true
+}
