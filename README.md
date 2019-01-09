@@ -8,6 +8,8 @@ numpy==1.15.1
 matplotlib==2.0.2
 opencv-python==3.3.0.10
 tensorflow-gpu == 1.10.1
+object detection api for make tfrecords: [link](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/installation.md) 
+
 ```
 
 toy dataset: [FDDB: Face Detection Data Set and Benchmark(FDDB)](http://vis-www.cs.umass.edu/fddb/)
