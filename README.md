@@ -2,7 +2,7 @@
 Object-detection-tutorials with Retina (tensorflow)
 
 ## Requirements
-Python 3.5
+Python 3.6 (python 3.5 is not working object detection api)
 ```
 numpy==1.15.1
 matplotlib==2.0.2
