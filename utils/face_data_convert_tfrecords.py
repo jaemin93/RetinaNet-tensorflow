@@ -11,9 +11,9 @@ import numpy as np
 import PIL.Image as pil
 from object_detection.utils import dataset_util
 
-IMG_ROOT_DIR = 'C:\\Users\\iceba\\develop\\data\\retina_face\\face\\originalPics'
-LABEL_ROOT_DIR = 'C:\\Users\\iceba\\develop\\data\\retina_face\\face\\FDDB-folds'
-TFRECORD_ROOT_DIR = 'C:\\Users\\iceba\\develop\\data\\retina_face\\face\\face_tfrecords'
+IMG_ROOT_DIR = 'C:\\Users\\jaemin\\data\\face\\originalPics'
+LABEL_ROOT_DIR = 'C:\\Users\\jaemin\\data\\face\\FDDB-folds'
+TFRECORD_ROOT_DIR = 'C:\\Users\\jaemin\\data\\face\\face_tfrecords'
 
 def _main():
     print('Make datasets list....')
@@ -23,17 +23,17 @@ def _main():
     d = make_label_list(LABEL_ROOT_DIR, image_list)
     print('Done')
     print('Converting Dict{img:label} to tfrecords format...')
-    for file_name, values in d.items():
+    for idx, (file_name, values) in enumerate(d.items()):
         img_name = file_name.split('/')
         img_name = '_'.join(img_name)
         output_path = TFRECORD_ROOT_DIR + os.sep + img_name[:-4] + str('.tfrecord')
-        img_tfrecord = create_tfrecord(file_name, values)
+        img_tfrecord = create_tfrecord(file_name, values, idx)
         writer = tf.python_io.TFRecordWriter(output_path)
         writer.write(img_tfrecord.SerializeToString())
     print('Done')
 
 
-def create_tfrecord(file_name, features):
+def create_tfrecord(file_name, features, idx):
     '''
         file_name = FDDB-fold-0x-ellipseList.txt에 있는 이미지 이름 + '.jpg' 확장자 까지 붙은것
         features = 해당 이미지 이름을 키로 가지고있는 ellipse 정보들 아래는 예
@@ -68,6 +68,7 @@ def create_tfrecord(file_name, features):
 
     tf_example = tf.train.Example(features=tf.train.Features(feature={
         'img': dataset_util.bytes_feature(img),
+        'idx': dataset_util.int64_feature(idx),
         'height': dataset_util.int64_feature(height),
         'width': dataset_util.int64_feature(width),
         'x1': dataset_util.float_list_feature(x1_list),

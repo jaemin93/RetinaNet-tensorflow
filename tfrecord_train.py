@@ -7,7 +7,7 @@ from learning.optimizers import AdamOptimizer as Optimizer
 from learning.evaluators import RecallEvaluator as Evaluator
 
 """ 1. Load and split datasets """
-root_dir = os.path.join('C:\\Users\\iceba\\develop\\data\\retina_face\\face') # FIXME
+root_dir = os.path.join('C:\\Users\\jaemin\\data\\face') # FIXME
 trainval_dir = os.path.join(root_dir, 'face_tfrecords')
 
 # Set image size and number of class
