@@ -86,7 +86,7 @@ class Optimizer(metaclass=ABCMeta):
                 - nms_flag: bool, whether to do non maximum supression(nms) for evaluation.
         :return train_results: dict, containing detailed results of training.
         """
-        num_eval = kwargs.pop('num_eval', 128)
+        num_eval = kwargs.pop('num_eval', 2)
         saver = tf.train.Saver()
         sess.run(tf.global_variables_initializer())  # initialize all weights
         if 'init_fn' in self.model.d.keys():
@@ -108,6 +108,7 @@ class Optimizer(metaclass=ABCMeta):
 
         # Start training loop
         for i in range(num_steps):
+            print(i)
             # Perform a gradient update from a single minibatch
             step_loss, step_y_true, step_y_pred, step_X = self._step(
                 sess, **kwargs)
@@ -147,16 +148,21 @@ class Optimizer(metaclass=ABCMeta):
                               .format(self.curr_epoch, step_loss, step_score, self.curr_learning_rate))
 
                     curr_score = step_score
-                if self.evaluator.is_better(curr_score, self.best_score, **kwargs):
+                try: 
+                    if self.evaluator.is_better(curr_score, self.best_score, **kwargs):
+                        self.best_score = curr_score
+                        saver.save(sess, os.path.join(save_dir, 'model.ckpt'))
+                except:
                     self.best_score = curr_score
                     saver.save(sess, os.path.join(save_dir, 'model.ckpt'))
 
                 # Keep track of the current best model,
                 # by comparing current score and the best score
             if (i+1) % num_steps_per_epoch == 0:
-                if self.evaluator.is_better(curr_score, self.best_score, **kwargs):
-                    self.num_bad_epochs = 0
-                else:
+                try:
+                    if self.evaluator.is_better(curr_score, self.best_score, **kwargs):
+                        self.num_bad_epochs = 0
+                except:
                     self.num_bad_epochs += 1
 
                 self._update_learning_rate(**kwargs)

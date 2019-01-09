@@ -21,4 +21,25 @@ STEP
 ```
 1: Convert data (tfrecord): Done
 2: Read tfrecord: Done
-3: Synchronization: Doing
+3: Synchronization: Done
+```
+## How can I run tfrecord_train.py?
+
+STEP
+```
+1. convert face_data_convert_tfrecords.py to yours and run face_data_convert_tfrecords.py in utils:
+    - line 14, 15: read pics and anno
+
+2. convert tfrecord_train.py to yours:
+    - line 10, 11: read your {}.tfrecords directory
+    - line 51: convert save_dir to yours
+
+3. convert optimizers.py to yours in learning:  
+    - line 89: convert num_eval to yours  
+
+4. convert retina.py to yours in models:
+    - line 51: you make dir pretrained_models and that have pretrained ckpt file, write path
+            file: [resnet_v2_50](http://download.tensorflow.org/models/resnet_v2_50_2017_04_14.tar.gz)
+```
+
+pleases write e-mail(icebanana93@gmail.com) not if you success.

@@ -48,7 +48,7 @@ class RetinaNet(DetectNet):
         # pretrain key의 value가 True이면,
         if pretrain:            
             # pretrained renet_v2_50 불러오기 
-            frontend_dir = os.path.join('pretrained_models', '{}.ckpt'.format(frontend))
+            frontend_dir = os.path.join('C:\\Users\\jaemin\\data\\face\\pretrained_models', '{}.ckpt'.format(frontend))
             # slim에서 resnet_v2을 사용하기 위해서 사용하는 name scope
             with slim.arg_scope(resnet_v2.resnet_arg_scope()):
                 # slim에 resnet_v2_50의 net, endpoint를 들고온다.
