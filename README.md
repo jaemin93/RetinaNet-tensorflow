@@ -16,7 +16,7 @@ toy dataset: [FDDB: Face Detection Data Set and Benchmark(FDDB)](http://vis-www.
 
 ellipsis_to_rectangle.py script helps to make annotations file for detection
 
-## GOAL
+## DEVELOP GOAL
 Convert image(.jpg), label(.anno) data to tfrecords format and read tfrecords
 
 STEP
@@ -27,7 +27,8 @@ STEP
 ```
 ## How can I run tfrecord_train.py?
 
-STEP
+
+v.0.1: STEP
 ```
 1. convert face_data_convert_tfrecords.py to yours and run face_data_convert_tfrecords.py in utils:
     - line 14, 15: read pics and anno
@@ -43,5 +44,21 @@ STEP
     - line 51: you make dir pretrained_models and that have pretrained ckpt file, write path
             file: [resnet_v2_50](http://download.tensorflow.org/models/resnet_v2_50_2017_04_14.tar.gz)
 ```
+
+***
+v.0.2: __configuration you directory in config.py__
+directory structure:
+            data
+            ├─face
+            │  ├─face_tfrecords
+            │  ├─face_tfrecords2
+            │  ├─FDDB-folds
+            │  ├─FDDB-list
+            │  └─originalPics
+            ├─pretrained_resnet
+            └─retinanet_ckpt
+                └─log
+                    ├─train
+                    └─val
 
 pleases write e-mail(icebanana93@gmail.com) not if you success.
