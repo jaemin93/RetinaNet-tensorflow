@@ -48,17 +48,30 @@ v.0.1: STEP
 ***
 v.0.2: __configuration you directory in config.py__
 directory structure:
+
             data
+
             ├─face
+
             │  ├─face_tfrecords
+
             │  ├─face_tfrecords2
+
             │  ├─FDDB-folds
+
             │  ├─FDDB-list
+
             │  └─originalPics
+
             ├─pretrained_resnet
+
             └─retinanet_ckpt
+
                 └─log
+
                     ├─train
+                    
                     └─val
+
 
 pleases write e-mail(icebanana93@gmail.com) not if you success.
