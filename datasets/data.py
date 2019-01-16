@@ -51,7 +51,6 @@ def read_data(trainval_dir, image_size, no_label=False):
              y_set: np.ndarray, shape: (N, N_box, 5+num_classes).
     """
     #jaemin`s code
-
     TFRECORD_ROOT_DIR = trainval_dir
 
     tf_list = list()

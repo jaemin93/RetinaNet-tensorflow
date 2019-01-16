@@ -108,7 +108,6 @@ class Optimizer(metaclass=ABCMeta):
 
         # Start training loop
         for i in range(num_steps):
-            print(i)
             # Perform a gradient update from a single minibatch
             step_loss, step_y_true, step_y_pred, step_X = self._step(
                 sess, **kwargs)

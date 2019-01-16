@@ -5,14 +5,32 @@ from datasets import data as dataset
 from models.retina import RetinaNet as ConvNet
 from learning.optimizers import AdamOptimizer as Optimizer
 from learning.evaluators import RecallEvaluator as Evaluator
+from config import *
 
 """ 1. Load and split datasets """
-root_dir = os.path.join('C:\\Users\\jaemin\\data\\face') # FIXME
-trainval_dir = os.path.join(root_dir, 'face_tfrecords2')
+root_dir = ROOT_DIR # FIXME
+trainval_dir = os.path.join(root_dir, TFRECORD)
 
 # Set image size and number of class
 IM_SIZE = (512, 512)
 NUM_CLASSES = 1
+
+def train_data_iterator():
+    batch_idx = 0
+    while True:
+
+        idxs = np.arange(0, len(train_features))
+        np.random.shuffle(idxs)
+        shuf_features = train_features[idxs]
+        shuf_labels = train_labels[idxs]
+
+        batch_size = BATCH_SIZE
+
+        for batch_idx in range(0, len(train_features), batch_size):
+            images_batch = shuf_features[batch_idx:batch_idx+batch_size] / 255.
+            images_batch = images_batch.astype("float32")
+            labels_batch = shuf_labels[batch_idx:batch_idx+batch_size]
+            yield images_batch, labels_batch
 
 # Load trainval set and split into train/val sets
 X_trainval, y_trainval = dataset.read_data(trainval_dir, IM_SIZE)
@@ -48,4 +66,4 @@ evaluator = Evaluator()
 optimizer = Optimizer(model, train_set, evaluator, val_set=val_set, **hp_d)
 
 sess = tf.Session(graph=graph, config=config)
-train_results = optimizer.train(sess, save_dir='C:\\Users\\jaemin\\data\\face\\ckpt', details=True, verbose=True, **hp_d)
+train_results = optimizer.train(sess, save_dir=SAVE_DIR, details=True, verbose=True, **hp_d)

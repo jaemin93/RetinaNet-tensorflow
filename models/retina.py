@@ -5,6 +5,7 @@ from datasets.utils import anchors_for_shape
 from models.layers import build_head_cls, build_head_loc, conv_layer, resize_to_target
 from models.utils import smooth_l1_loss, focal_loss, bbox_transform_inv
 from models.nn import DetectNet
+from config import *
 
 slim = tf.contrib.slim
 # RetinaNet 클래스 선언
@@ -40,7 +41,7 @@ class RetinaNet(DetectNet):
         # pop함수로 unpacking된 kwargs중에 'pretrain' key가 없으면 True값을 리턴
         pretrain = kwargs.pop('pretrain', True)
         # pop함수로 unpacking된 kwargs중에 'frontend' key가 없으면, resnet_v2_50 key의 value가 리턴
-        frontend = kwargs.pop('frontend', 'resnet_v2_50')
+        frontend = kwargs.pop('frontend', PRETRAINED_MODEL)
         # pop함수로 unpacking된 kwargs중에 num_anchors key에서 value를 꺼낸다.
         # kwargs에 num_anchors키가 없으면 9로 리턴된다.
         # models/utils.py line60: num_anchors = len(ratios) * len(scales)
@@ -48,7 +49,7 @@ class RetinaNet(DetectNet):
         # pretrain key의 value가 True이면,
         if pretrain:            
             # pretrained renet_v2_50 불러오기 
-            frontend_dir = os.path.join('C:\\Users\\jaemin\\data\\face\\pretrained_models', '{}.ckpt'.format(frontend))
+            frontend_dir = os.path.join(os.path.join(DATA_DIR, PRETRAINED_DIR), '{}.ckpt'.format(frontend))
             # slim에서 resnet_v2을 사용하기 위해서 사용하는 name scope
             with slim.arg_scope(resnet_v2.resnet_arg_scope()):
                 # slim에 resnet_v2_50의 net, endpoint를 들고온다.

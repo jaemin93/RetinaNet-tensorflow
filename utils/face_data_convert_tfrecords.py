@@ -10,10 +10,11 @@ import tensorflow as tf
 import numpy as np
 import PIL.Image as pil
 from object_detection.utils import dataset_util
+from config import *
 
-IMG_ROOT_DIR = 'C:\\Users\\jaemin\\data\\face\\originalPics'
-LABEL_ROOT_DIR = 'C:\\Users\\jaemin\\data\\face\\FDDB-folds'
-TFRECORD_ROOT_DIR = 'C:\\Users\\jaemin\\data\\face\\face_tfrecords'
+IMG_ROOT_DIR =  ROOT_DIR + os.sep + IMAGE
+LABEL_ROOT_DIR = ROOT_DIR + os.sep + LABEL
+TFRECORD_ROOT_DIR = ROOT_DIR + os.sep + TFRECORD
 
 def _main():
     print('Make datasets list....')

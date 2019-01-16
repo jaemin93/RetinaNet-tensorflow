@@ -16,8 +16,9 @@ import json
 from datasets.utils import anchor_targets_bbox, bbox_transform, padding, anchors_for_shape
 import PIL.Image as pil
 from object_detection.utils import dataset_util
+from config import *
 
-TFRECORD_ROOT_DIR = 'C:\\Users\\iceba\\develop\\data\\retina_face\\face\\face_tfrecords\\2002_07_19_big_img_18.tfrecord'
+TFRECORD_ROOT_DIR = os.path.join(ROOT_DIR, TFRECORD)
 
 def _main():
     filename_queue = tf.train.string_input_producer([TFRECORD_ROOT_DIR])
