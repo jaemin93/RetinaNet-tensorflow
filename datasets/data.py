@@ -12,6 +12,7 @@ from config import *
 
 IM_EXTENSIONS = ['png', 'jpg', 'bmp']
 
+
 def read_tfrecord(filename_queue):
     reader = tf.TFRecordReader()
     _, serialized_example = reader.read(filename_queue)
@@ -41,7 +42,7 @@ def read_tfrecord(filename_queue):
     # print(type(label), label.value)
     return encoded, idx, h, w, x1, x2, y1, y2, label
 
-def read_data(image_size, start, end, no_label=False):
+def read_data(train_set, image_size, start, end, no_label=False):
     """
     Load the data and preprocessing for RetinaNet detector
     :param data_dir: str, path to the directory to read.
@@ -52,14 +53,14 @@ def read_data(image_size, start, end, no_label=False):
              y_set: np.ndarray, shape: (N, N_box, 5+num_classes).
     """
     #jaemin`s code
-
+    
     anchors = anchors_for_shape(image_size)
     ih, iw = image_size
     images = []
     labels = []
 
     # jaemin`s code
-    filename_queue = tf.train.string_input_producer(TF_LIST[start:end])
+    filename_queue = tf.train.string_input_producer(train_set[start:end])
     encoded, index, h, w, x1, x2, y1, y2, label = read_tfrecord(filename_queue)
 
     init_op = tf.global_variables_initializer()

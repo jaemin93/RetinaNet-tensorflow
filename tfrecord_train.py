@@ -14,7 +14,8 @@ trainval_dir = os.path.join(root_dir, TFRECORD)
 # Set image size and number of class
 IM_SIZE = (512, 512)
 NUM_CLASSES = 1
-
+start = 0
+end = start + DATA_BATCH_SIZE
 """ 2. Set training hyperparameters"""
 hp_d = dict()
 
@@ -41,16 +42,27 @@ evaluator = Evaluator()
 
 # Load trainval set and split into train/val sets
 
-def data_iterator():
-    batch_idx = 0
-    while True:
-        for batch_idx in range(0, len(TF_LIST), DATA_BATCH_SIZE):
-            X_trainval_batch, y_trainval_batch = dataset.read_data(IM_SIZE, batch_idx, batch_idx+DATA_BATCH_SIZE)
-            yield X_trainval_batch, y_trainval_batch
+def data_iterator(start, end):
+    X_trainval_batch, y_trainval_batch = dataset.read_data(IM_SIZE, start, end)
+    return X_trainval_batch, y_trainval_batch, batch_idx
 
-iter_ = data_iterator()
+def data_shuffle(data):
+    idxs = np.arange(0, len(data))
+    np.random.shuffle(idxs)
+    shuf_data = data[idxs]
+    return shuf_data
+
+sess = tf.Session(graph=graph, config=config)
+shuf_data = data_shuffle(TF_LIST)
+
 for step in range(500):
-    X_trainval, y_trainval = next(iter_)
+    if start + DATA_BATCH_SIZE > len(TF_LIST):
+        X_trainval, y_trainval idx = data_iterator(shuf_data, start, len(TF_LIST)-1)
+        start = 0
+        shuf_data = data_shuffle(TF_LIST)
+    else:
+        X_trainval, y_trainval idx = data_iterator(shuf_data, start, start+DATA_BATCH_SIZE)
+        start = start+DATA_BATCH_SIZE
     print('read data mini batch success')
     trainval_size = X_trainval.shape[0]
     val_size = int(trainval_size * 0.1) # FIXME
@@ -58,6 +70,5 @@ for step in range(500):
     train_set = dataset.DataSet(X_trainval[val_size:], y_trainval[val_size:])
 
     optimizer = Optimizer(model, train_set, evaluator, val_set=val_set, **hp_d)
-    sess = tf.Session(graph=graph, config=config)
 
     train_results = optimizer.train(sess, save_dir=SAVE_DIR, details=True, verbose=True, **hp_d)
