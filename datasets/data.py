@@ -8,6 +8,7 @@ import io
 import json
 import tensorflow as tf
 from datasets.utils import anchor_targets_bbox, bbox_transform, padding, anchors_for_shape
+from config import *
 
 IM_EXTENSIONS = ['png', 'jpg', 'bmp']
 
@@ -40,7 +41,7 @@ def read_tfrecord(filename_queue):
     # print(type(label), label.value)
     return encoded, idx, h, w, x1, x2, y1, y2, label
 
-def read_data(trainval_dir, image_size, no_label=False):
+def read_data(image_size, start, end, no_label=False):
     """
     Load the data and preprocessing for RetinaNet detector
     :param data_dir: str, path to the directory to read.
@@ -51,19 +52,14 @@ def read_data(trainval_dir, image_size, no_label=False):
              y_set: np.ndarray, shape: (N, N_box, 5+num_classes).
     """
     #jaemin`s code
-    TFRECORD_ROOT_DIR = trainval_dir
 
-    tf_list = list()
-
-    for info in os.listdir(TFRECORD_ROOT_DIR):
-        tf_list.append(os.path.join(TFRECORD_ROOT_DIR, info))
     anchors = anchors_for_shape(image_size)
     ih, iw = image_size
     images = []
     labels = []
 
     # jaemin`s code
-    filename_queue = tf.train.string_input_producer(tf_list)
+    filename_queue = tf.train.string_input_producer(TF_LIST[start:end])
     encoded, index, h, w, x1, x2, y1, y2, label = read_tfrecord(filename_queue)
 
     init_op = tf.global_variables_initializer()

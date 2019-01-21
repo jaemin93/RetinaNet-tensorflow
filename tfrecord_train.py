@@ -15,36 +15,11 @@ trainval_dir = os.path.join(root_dir, TFRECORD)
 IM_SIZE = (512, 512)
 NUM_CLASSES = 1
 
-def train_data_iterator():
-    batch_idx = 0
-    while True:
-
-        idxs = np.arange(0, len(train_features))
-        np.random.shuffle(idxs)
-        shuf_features = train_features[idxs]
-        shuf_labels = train_labels[idxs]
-
-        batch_size = BATCH_SIZE
-
-        for batch_idx in range(0, len(train_features), batch_size):
-            images_batch = shuf_features[batch_idx:batch_idx+batch_size] / 255.
-            images_batch = images_batch.astype("float32")
-            labels_batch = shuf_labels[batch_idx:batch_idx+batch_size]
-            yield images_batch, labels_batch
-
-# Load trainval set and split into train/val sets
-X_trainval, y_trainval = dataset.read_data(trainval_dir, IM_SIZE)
-print('read data success')
-trainval_size = X_trainval.shape[0]
-val_size = int(trainval_size * 0.1) # FIXME
-val_set = dataset.DataSet(X_trainval[:val_size], y_trainval[:val_size])
-train_set = dataset.DataSet(X_trainval[val_size:], y_trainval[val_size:])
-
 """ 2. Set training hyperparameters"""
 hp_d = dict()
 
 # FIXME: Training hyperparameters
-hp_d['batch_size'] = 2
+hp_d['batch_size'] = 8
 hp_d['num_epochs'] = 50
 hp_d['init_learning_rate'] = 1e-4
 hp_d['momentum'] = 0.9
@@ -63,7 +38,26 @@ config.gpu_options.allow_growth = True
 model = ConvNet([IM_SIZE[0], IM_SIZE[1], 3], NUM_CLASSES, None)
 
 evaluator = Evaluator()
-optimizer = Optimizer(model, train_set, evaluator, val_set=val_set, **hp_d)
 
-sess = tf.Session(graph=graph, config=config)
-train_results = optimizer.train(sess, save_dir=SAVE_DIR, details=True, verbose=True, **hp_d)
+# Load trainval set and split into train/val sets
+
+def data_iterator():
+    batch_idx = 0
+    while True:
+        for batch_idx in range(0, len(TF_LIST), DATA_BATCH_SIZE):
+            X_trainval_batch, y_trainval_batch = dataset.read_data(IM_SIZE, batch_idx, batch_idx+DATA_BATCH_SIZE)
+            yield X_trainval_batch, y_trainval_batch
+
+iter_ = data_iterator()
+for step in range(500):
+    X_trainval, y_trainval = next(iter_)
+    print('read data mini batch success')
+    trainval_size = X_trainval.shape[0]
+    val_size = int(trainval_size * 0.1) # FIXME
+    val_set = dataset.DataSet(X_trainval[:val_size], y_trainval[:val_size])
+    train_set = dataset.DataSet(X_trainval[val_size:], y_trainval[val_size:])
+
+    optimizer = Optimizer(model, train_set, evaluator, val_set=val_set, **hp_d)
+    sess = tf.Session(graph=graph, config=config)
+
+    train_results = optimizer.train(sess, save_dir=SAVE_DIR, details=True, verbose=True, **hp_d)
