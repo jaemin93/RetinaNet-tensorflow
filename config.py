@@ -16,4 +16,3 @@ TF_LIST = list()
 
 for info in os.listdir(os.path.join(ROOT_DIR, TFRECORD)):
     TF_LIST.append(os.path.join(ROOT_DIR + os.sep + TFRECORD, info))
-

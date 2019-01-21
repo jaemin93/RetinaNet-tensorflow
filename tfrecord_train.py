@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import tensorflow as tf
+import random
 from datasets import data as dataset
 from models.retina import RetinaNet as ConvNet
 from learning.optimizers import AdamOptimizer as Optimizer
@@ -42,28 +43,23 @@ evaluator = Evaluator()
 
 # Load trainval set and split into train/val sets
 
-def data_iterator(start, end):
-    X_trainval_batch, y_trainval_batch = dataset.read_data(IM_SIZE, start, end)
-    return X_trainval_batch, y_trainval_batch, batch_idx
-
-def data_shuffle(data):
-    idxs = np.arange(0, len(data))
-    np.random.shuffle(idxs)
-    shuf_data = data[idxs]
-    return shuf_data
+def data_iterator(train_dataset, start, end):
+    X_trainval_batch, y_trainval_batch = dataset.read_data(train_dataset, IM_SIZE, start, end)
+    return X_trainval_batch, y_trainval_batch
 
 sess = tf.Session(graph=graph, config=config)
-shuf_data = data_shuffle(TF_LIST)
+random.shuffle(TF_LIST)
 
 for step in range(500):
     if start + DATA_BATCH_SIZE > len(TF_LIST):
-        X_trainval, y_trainval idx = data_iterator(shuf_data, start, len(TF_LIST)-1)
+        X_trainval, y_trainval = data_iterator(TF_LIST, start, len(TF_LIST)-1)
+        print(start, ' ~ ', len(TF_LIST)-1, ': read data mini batch success', sep='')
         start = 0
-        shuf_data = data_shuffle(TF_LIST)
+        random.shuffle(TF_LIST)
     else:
-        X_trainval, y_trainval idx = data_iterator(shuf_data, start, start+DATA_BATCH_SIZE)
+        X_trainval, y_trainval = data_iterator(TF_LIST, start, start+DATA_BATCH_SIZE)
+        print(start, ' ~ ', start+DATA_BATCH_SIZE, ':read data mini batch success', sep='')
         start = start+DATA_BATCH_SIZE
-    print('read data mini batch success')
     trainval_size = X_trainval.shape[0]
     val_size = int(trainval_size * 0.1) # FIXME
     val_set = dataset.DataSet(X_trainval[:val_size], y_trainval[:val_size])

@@ -53,7 +53,7 @@ def read_data(train_set, image_size, start, end, no_label=False):
              y_set: np.ndarray, shape: (N, N_box, 5+num_classes).
     """
     #jaemin`s code
-    
+
     anchors = anchors_for_shape(image_size)
     ih, iw = image_size
     images = []
@@ -70,12 +70,12 @@ def read_data(train_set, image_size, start, end, no_label=False):
         threads = tf.train.start_queue_runners(coord=coord)
         index_list = list()
         try:
-            count = 1
+            # count = 1
             while not coord.should_stop():
                 vencoded, vindex, vh, vw, vx1, vx2, vy1, vy2, vlabel = sess.run([encoded, index, h, w, x1, x2, y1, y2, label])
-                if count % 100 is 0:
-                    print('총 2845:',count)
-                count += 1
+                # if count % 100 is 0:
+                #     print('총 2845:',count)
+                # count += 1
                 if vindex in index_list:
                     coord.should_stop()
                     break
